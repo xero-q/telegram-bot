@@ -1,6 +1,5 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
-import sched
 import time
 from datetime import datetime
 import threading
@@ -86,7 +85,7 @@ def main():
             TIME: [MessageHandler(Filters.text & ~Filters.command, handle_time)],
             STRING: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
         },
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('cancel', cancel)]        
     )
 
     # Define handlers
