@@ -1,3 +1,4 @@
+from utils.btcusd import get_BTCUSD_rate
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 import time
@@ -5,6 +6,7 @@ from datetime import datetime
 import threading
 from dotenv import load_dotenv
 import os
+import requests
 
 load_dotenv()
 
@@ -29,7 +31,8 @@ def set_alert(user_time, user_string, update):
 def start(update, context):
     # Define the inline buttons
     keyboard = [
-        [InlineKeyboardButton("Set Alert", callback_data='1')]       
+        [InlineKeyboardButton("Set Alert", callback_data='1')],
+        [InlineKeyboardButton("Get value of BTC", callback_data='2')]       
     ]
     
     # Create the inline keyboard
@@ -46,7 +49,10 @@ def button(update, context):
     if query.data == '1':
         query.message.reply_text('Please enter the time (HH:MM:SS):')
         return TIME  # Move to the next state to capture time input
-   
+    if query.data == '2':
+        value_BTC = get_BTCUSD_rate()
+        value_currency = '${:,.2f}'.format(value_BTC)
+        query.message.reply_text(f'Value of BTC: {value_currency} USD')   
 
 
 # Handle time input
