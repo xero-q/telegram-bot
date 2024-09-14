@@ -6,7 +6,6 @@ from datetime import datetime
 import threading
 from dotenv import load_dotenv
 import os
-import requests
 
 load_dotenv()
 
@@ -52,7 +51,7 @@ def button(update, context):
     if query.data == '2':
         value_BTC = get_BTCUSD_rate()
         value_currency = '${:,.2f}'.format(value_BTC)
-        query.message.reply_text(f'Value of BTC: {value_currency} USD')   
+        query.message.reply_text(f'Value of BTC: {value_currency}')   
 
 
 # Handle time input
