@@ -72,15 +72,21 @@ def alertHandler(update, context):
     update.message.reply_text('Please enter the time (HH:MM:SS):')
     return TIME  # Move to the next state to capture time input
 
-def priceBTC(update, context):
-    value_BTC = get_coin_usd('BTC')
-    value_currency = '${:,.2f}'.format(value_BTC)
-    update.message.reply_text(f'Price of BTC: {value_currency}')
+def priceBTC(update, context):    
+    try:
+        value_BTC = get_coin_usd('BTC')
+        value_currency = '${:,.2f}'.format(value_BTC)
+        update.message.reply_text(f'Price of BTC: {value_currency}')
+    except Exception as e:
+        update.message.reply_text(f'Error: {e}')    
 
 def priceETH(update, context):
-     value_ETH = get_coin_usd('ETH')
-     value_currency = '${:,.2f}'.format(value_ETH)
-     update.message.reply_text(f'Price of ETH: {value_currency}') 
+    try:
+        value_ETH = get_coin_usd('ETH')
+        value_currency = '${:,.2f}'.format(value_ETH)
+        update.message.reply_text(f'Price of ETH: {value_currency}') 
+    except Exception as e:
+        update.message.reply_text(f'Error: {e}')
 
 def priceCOIN(update, context):
     update.message.reply_text('Please enter the coin: ') 
@@ -130,12 +136,15 @@ def handle_string(update: Update, context):
 
 # Handle coin input
 def handle_coin(update: Update, context):
-    coin = update.message.text.upper()
-    value_coin = get_coin_usd(coin)
-    value_currency = '${:,.2f}'.format(value_coin)
+    try:
+        coin = update.message.text.upper()
+        value_coin = get_coin_usd(coin)
+        value_currency = '${:,.2f}'.format(value_coin)
 
-    update.message.reply_text(f'Price of {coin}: {value_currency}')
-    return ConversationHandler.END
+        update.message.reply_text(f'Price of {coin}: {value_currency}')
+        return ConversationHandler.END
+    except Exception as e:
+        update.message.reply_text(f'Error: {e}')
 
 # Cancel handler
 def cancel(update: Update, context):

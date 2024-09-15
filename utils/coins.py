@@ -10,4 +10,9 @@ def get_coin_usd(coin):
     
     response = requests.get(url=URL, headers=HEADERS)
 
-    return response.json()['rate']
+    json = response.json()
+    if 'rate' in json.keys():
+        return json['rate']        
+    else:
+        raise Exception(f'Impossible to get the price of this coin ({coin})')   
+    
