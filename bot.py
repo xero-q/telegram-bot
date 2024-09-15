@@ -7,10 +7,17 @@ from datetime import datetime
 import threading
 from dotenv import load_dotenv
 import os
+import base64
 
 load_dotenv()
 
 TIME, STRING, COIN = range(3)
+
+token_base64 = os.getenv('GCP_TOKEN_BASE64')
+if token_base64:
+    token_json = base64.b64decode(token_base64).decode('utf-8')
+    with open(os.getenv('TOKEN_FILE'), 'w') as token_file:
+        token_file.write(token_json)
 
 def set_alert(user_time, user_string, update):
     # Parse the target time
