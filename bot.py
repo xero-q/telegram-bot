@@ -30,18 +30,22 @@ def set_alert(user_time, user_string, update):
 
 def start(update, context):
     # Define the inline buttons
-    keyboard = [
-        [InlineKeyboardButton("Set Alert", callback_data='1')],
-        [InlineKeyboardButton("Get price of BTC", callback_data='2')],
-        [InlineKeyboardButton("Get price of ETH", callback_data='3')],
-         [InlineKeyboardButton("Get new emails", callback_data='4')]                
-    ]
+    user_id = update.message.from_user.id
+    if user_id != int(os.getenv('USER_ID')):
+       update.message.reply_text('Sorry this bot is private') 
+    else:
+        keyboard = [
+            [InlineKeyboardButton("Set Alert", callback_data='1')],
+            [InlineKeyboardButton("Get price of BTC", callback_data='2')],
+            [InlineKeyboardButton("Get price of ETH", callback_data='3')],
+            [InlineKeyboardButton("Get new emails", callback_data='4')]                
+        ]
     
-    # Create the inline keyboard
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        # Create the inline keyboard
+        reply_markup = InlineKeyboardMarkup(keyboard)
     
-    # Send the message with the inline keyboard
-    update.message.reply_text('Choose an option:', reply_markup=reply_markup)
+        # Send the message with the inline keyboard
+        update.message.reply_text('Choose an option:', reply_markup=reply_markup)
 
 def button(update, context):
     query = update.callback_query
