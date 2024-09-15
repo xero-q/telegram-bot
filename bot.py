@@ -1,4 +1,5 @@
 from utils.cryptos import get_BTCUSD_rate, get_ETHUSD_rate
+from utils.gmail import get_unread_messages
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 import time
@@ -32,7 +33,8 @@ def start(update, context):
     keyboard = [
         [InlineKeyboardButton("Set Alert", callback_data='1')],
         [InlineKeyboardButton("Get price of BTC", callback_data='2')],
-        [InlineKeyboardButton("Get price of ETH", callback_data='3')]           
+        [InlineKeyboardButton("Get price of ETH", callback_data='3')],
+         [InlineKeyboardButton("Get new emails", callback_data='4')]                
     ]
     
     # Create the inline keyboard
@@ -57,6 +59,8 @@ def button(update, context):
         value_BTC = get_ETHUSD_rate()
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Price of ETH: {value_currency}')   
+    if query.data == '4':
+       query.message.reply_text(get_unread_messages())   
 
 
 # Handle time input
