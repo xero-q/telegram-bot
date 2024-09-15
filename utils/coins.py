@@ -1,7 +1,7 @@
 import requests
 import os
 
-def getCoinUSD(coin):
+def get_coin_usd(coin):
     URL = f"https://rest.coinapi.io/v1/exchangerate/{coin}/USD"
     HEADERS = {
                 'Accept': 'text/plain',

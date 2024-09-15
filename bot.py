@@ -1,4 +1,4 @@
-from utils.cryptos import getCoinUSD
+from utils.coins import get_coin_usd
 from utils.gmail import get_unread_messages
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
@@ -57,11 +57,11 @@ def button(update, context):
         query.message.reply_text('Please enter the time (HH:MM:SS):')
         return TIME  # Move to the next state to capture time input
     if query.data == '2':
-        value_BTC = getCoinUSD('BTC')
+        value_BTC = get_coin_usd('BTC')
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Price of BTC: {value_currency}')   
     if query.data == '3':
-        value_BTC = getCoinUSD('ETH')
+        value_BTC = get_coin_usd('ETH')
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Price of ETH: {value_currency}')   
     # Handle the button press
@@ -96,7 +96,7 @@ def handle_string(update: Update, context):
 def handle_coin(update: Update, context):
     coin = update.message.text.upper()
 
-    value_coin = getCoinUSD(coin)
+    value_coin = get_coin_usd(coin)
     value_currency = '${:,.2f}'.format(value_coin)
 
     update.message.reply_text(f'Price of {coin}: {value_currency}')
