@@ -68,6 +68,27 @@ def start(update, context):
         # Send the message with the inline keyboard
         update.message.reply_text('Choose an option:', reply_markup=reply_markup)
 
+def alertHandler(update, context):
+    update.message.reply_text('Please enter the time (HH:MM:SS):')
+    return TIME  # Move to the next state to capture time input
+
+def priceBTC(update, context):
+    value_BTC = get_coin_usd('BTC')
+    value_currency = '${:,.2f}'.format(value_BTC)
+    update.message.reply_text(f'Price of BTC: {value_currency}')
+
+def priceETH(update, context):
+     value_ETH = get_coin_usd('ETH')
+     value_currency = '${:,.2f}'.format(value_ETH)
+     update.message.reply_text(f'Price of ETH: {value_currency}') 
+
+def priceCOIN(update, context):
+    update.message.reply_text('Please enter the coin: ') 
+    return COIN
+   
+def getGmail(update, context):
+    update.message.reply_text(get_unread_messages())   
+
 def button(update, context):
     query = update.callback_query
     query.answer()
@@ -76,22 +97,17 @@ def button(update, context):
     if query.data == '1':
         query.message.reply_text('Please enter the time (HH:MM:SS):')
         return TIME  # Move to the next state to capture time input
+        # alertHandler(query, context)
     if query.data == '2':
-        value_BTC = get_coin_usd('BTC')
-        value_currency = '${:,.2f}'.format(value_BTC)
-        query.message.reply_text(f'Price of BTC: {value_currency}')   
+        priceBTC(query, context)       
     if query.data == '3':
-        value_BTC = get_coin_usd('ETH')
-        value_currency = '${:,.2f}'.format(value_BTC)
-        query.message.reply_text(f'Price of ETH: {value_currency}')   
+        priceETH(query, context)        
     # Handle the button press
-    if query.data == '4':
-       query.message.reply_text('Please enter the coin: ')   
-       return COIN
+    if query.data == '4':    
+       query.message.reply_text('Please enter the coin: ')  
+       return COIN        
     if query.data == '5':
-       query.message.reply_text(get_unread_messages())   
-
-
+       getGmail(query,context)
 
 # Handle time input
 def handle_time(update: Update, context):
@@ -112,10 +128,9 @@ def handle_string(update: Update, context):
 
     return ConversationHandler.END  # End the conversation
 
-# Handle string input
+# Handle coin input
 def handle_coin(update: Update, context):
     coin = update.message.text.upper()
-
     value_coin = get_coin_usd(coin)
     value_currency = '${:,.2f}'.format(value_coin)
 
@@ -137,18 +152,21 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(button)],
+        entry_points=[CallbackQueryHandler(button),CommandHandler('alert', alertHandler),CommandHandler('coin', priceCOIN)],
         states={
             TIME: [MessageHandler(Filters.text & ~Filters.command, handle_time)],
             STRING: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
             COIN:[MessageHandler(Filters.text & ~Filters.command, handle_coin)]
         },
-        fallbacks=[CommandHandler('cancel', cancel)]        
+        fallbacks=[CommandHandler('cancel', cancel)]                
     )
 
     # Define handlers
     dp.add_handler(CommandHandler("start", start))
-    # dp.add_handler(CallbackQueryHandler(button))
+    dp.add_handler(CommandHandler('btc', priceBTC))
+    dp.add_handler(CommandHandler('eth', priceETH))
+    dp.add_handler(CommandHandler('gmail', getGmail))
+
     dp.add_handler(conv_handler)
 
     # Start the bot
