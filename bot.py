@@ -1,4 +1,4 @@
-from utils.btcusd import get_BTCUSD_rate
+from utils.cryptos import get_BTCUSD_rate, get_ETHUSD_rate
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 import time
@@ -31,7 +31,8 @@ def start(update, context):
     # Define the inline buttons
     keyboard = [
         [InlineKeyboardButton("Set Alert", callback_data='1')],
-        [InlineKeyboardButton("Get value of BTC", callback_data='2')]       
+        [InlineKeyboardButton("Get value of BTC", callback_data='2')],
+        [InlineKeyboardButton("Get value of ETH", callback_data='3')]           
     ]
     
     # Create the inline keyboard
@@ -52,6 +53,10 @@ def button(update, context):
         value_BTC = get_BTCUSD_rate()
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Value of BTC: {value_currency}')   
+    if query.data == '3':
+        value_BTC = get_ETHUSD_rate()
+        value_currency = '${:,.2f}'.format(value_BTC)
+        query.message.reply_text(f'Value of ETH: {value_currency}')   
 
 
 # Handle time input

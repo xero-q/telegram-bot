@@ -1,7 +1,7 @@
 ### Telegram Bot
 
 #### Description
-Coded in Python using `telegram` package. For now the bot only has two options: `Set Alert` and `Get value of BTC`.
+Coded in Python using `telegram` package. For now the bot only has three options: `Set Alert`, `Get value of BTC` and `Get value of ETH`
 
 #### Install
 - Run `pip install -r requirements.txt`
