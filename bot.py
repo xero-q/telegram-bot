@@ -8,6 +8,7 @@ import threading
 from dotenv import load_dotenv
 import os
 import base64
+from flask import Flask
 
 load_dotenv()
 
@@ -18,6 +19,18 @@ if token_base64:
     token_json = base64.b64decode(token_base64).decode('utf-8')
     with open(os.getenv('TOKEN_FILE'), 'w') as token_file:
         token_file.write(token_json)
+
+app = Flask(__name__)
+
+# Define a route (not required but useful for testing)
+@app.route('/')
+def hello():
+    return "Bot is running!"     
+
+def run_flask():
+    port = int(os.getenv('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)   
+
 
 def set_alert(user_time, user_string, update):
     # Parse the target time
@@ -115,6 +128,10 @@ def cancel(update: Update, context):
     return ConversationHandler.END
 
 def main():
+    #Run flask in parallel
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.start()
+    
     # Set up the Updater and Dispatcher
     updater = Updater(os.getenv('BOT_ID'), use_context=True)
     dp = updater.dispatcher
@@ -137,6 +154,7 @@ def main():
     # Start the bot
     updater.start_polling()
     updater.idle()
+  
 
 if __name__ == '__main__':
     main()
