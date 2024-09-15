@@ -31,8 +31,8 @@ def start(update, context):
     # Define the inline buttons
     keyboard = [
         [InlineKeyboardButton("Set Alert", callback_data='1')],
-        [InlineKeyboardButton("Get value of BTC", callback_data='2')],
-        [InlineKeyboardButton("Get value of ETH", callback_data='3')]           
+        [InlineKeyboardButton("Get price of BTC", callback_data='2')],
+        [InlineKeyboardButton("Get price of ETH", callback_data='3')]           
     ]
     
     # Create the inline keyboard
@@ -52,11 +52,11 @@ def button(update, context):
     if query.data == '2':
         value_BTC = get_BTCUSD_rate()
         value_currency = '${:,.2f}'.format(value_BTC)
-        query.message.reply_text(f'Value of BTC: {value_currency}')   
+        query.message.reply_text(f'Price of BTC: {value_currency}')   
     if query.data == '3':
         value_BTC = get_ETHUSD_rate()
         value_currency = '${:,.2f}'.format(value_BTC)
-        query.message.reply_text(f'Value of ETH: {value_currency}')   
+        query.message.reply_text(f'Price of ETH: {value_currency}')   
 
 
 # Handle time input
