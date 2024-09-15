@@ -14,7 +14,7 @@ one_week_ago = today - timedelta(weeks=1)
 # Format the date in 'YYYY/MM/DD' format for use in Gmail API queries
 one_week_ago_formatted = one_week_ago.strftime('%Y/%m/%d')
 
-# If modifying these SCOPES, delete the token.json file.
+# If modifying these SCOPES, delete the token file.
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 def authenticate_gmail():
@@ -22,20 +22,20 @@ def authenticate_gmail():
     Lists the user's Gmail labels.
     """
     creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
+    # The file with the token stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists(os.getenv('TOKEN_FILE')):
+        creds = Credentials.from_authorized_user_file(os.getenv('TOKEN_FILE'), SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                os.getenv('CREDENTIALS_FILE'), SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open(os.getenv('TOKEN_FILE'), 'w') as token:
             token.write(creds.to_json())
 
     # Connect to the Gmail API
