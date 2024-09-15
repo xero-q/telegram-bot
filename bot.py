@@ -1,4 +1,4 @@
-from utils.cryptos import get_BTCUSD_rate, get_ETHUSD_rate
+from utils.cryptos import getCoinUSD
 from utils.gmail import get_unread_messages
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
@@ -10,7 +10,7 @@ import os
 
 load_dotenv()
 
-TIME, STRING = range(2)
+TIME, STRING, COIN = range(3)
 
 def set_alert(user_time, user_string, update):
     # Parse the target time
@@ -38,7 +38,8 @@ def start(update, context):
             [InlineKeyboardButton("Set Alert", callback_data='1')],
             [InlineKeyboardButton("Get price of BTC", callback_data='2')],
             [InlineKeyboardButton("Get price of ETH", callback_data='3')],
-            [InlineKeyboardButton("Get new emails", callback_data='4')]                
+            [InlineKeyboardButton("Get price of any coin", callback_data='4')],
+            [InlineKeyboardButton("Get new emails", callback_data='5')]                
         ]
     
         # Create the inline keyboard
@@ -56,15 +57,20 @@ def button(update, context):
         query.message.reply_text('Please enter the time (HH:MM:SS):')
         return TIME  # Move to the next state to capture time input
     if query.data == '2':
-        value_BTC = get_BTCUSD_rate()
+        value_BTC = getCoinUSD('BTC')
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Price of BTC: {value_currency}')   
     if query.data == '3':
-        value_BTC = get_ETHUSD_rate()
+        value_BTC = getCoinUSD('ETH')
         value_currency = '${:,.2f}'.format(value_BTC)
         query.message.reply_text(f'Price of ETH: {value_currency}')   
+    # Handle the button press
     if query.data == '4':
+       query.message.reply_text('Please enter the coin: ')   
+       return COIN
+    if query.data == '5':
        query.message.reply_text(get_unread_messages())   
+
 
 
 # Handle time input
@@ -86,6 +92,15 @@ def handle_string(update: Update, context):
 
     return ConversationHandler.END  # End the conversation
 
+# Handle string input
+def handle_coin(update: Update, context):
+    coin = update.message.text.upper()
+
+    value_coin = getCoinUSD(coin)
+    value_currency = '${:,.2f}'.format(value_coin)
+
+    update.message.reply_text(f'Price of {coin}: {value_currency}')
+    return ConversationHandler.END
 
 # Cancel handler
 def cancel(update: Update, context):
@@ -102,6 +117,7 @@ def main():
         states={
             TIME: [MessageHandler(Filters.text & ~Filters.command, handle_time)],
             STRING: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
+            COIN:[MessageHandler(Filters.text & ~Filters.command, handle_coin)]
         },
         fallbacks=[CommandHandler('cancel', cancel)]        
     )
