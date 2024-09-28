@@ -1,5 +1,5 @@
 from utils.coins import get_coin_usd
-from utils.gmail import get_unread_messages
+from utils.translate import translate_es_ru
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater,  CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, Filters
 import time
@@ -12,7 +12,7 @@ from flask import Flask
 
 load_dotenv()
 
-TIME, STRING, COIN = range(3)
+TIME, STRING, COIN, TRANSLATE_RU = range(4)
 
 token_base64 = os.getenv('GCP_TOKEN_BASE64')
 if token_base64:
@@ -59,7 +59,7 @@ def start(update, context):
             [InlineKeyboardButton("Get price of BTC", callback_data='2')],
             [InlineKeyboardButton("Get price of ETH", callback_data='3')],
             [InlineKeyboardButton("Get price of any coin", callback_data='4')],
-            [InlineKeyboardButton("Get new emails", callback_data='5')]                
+            [InlineKeyboardButton("Translate into Russian", callback_data='5')]                  
         ]
     
         # Create the inline keyboard
@@ -91,9 +91,10 @@ def priceETH(update, context):
 def priceCOIN(update, context):
     update.message.reply_text('Please enter the coin: ') 
     return COIN
-   
-def getGmail(update, context):
-    update.message.reply_text(get_unread_messages())   
+
+def translateIntoRussian(update, context):
+    update.message.reply_text('Please enter the text to be translated: ') 
+    return TRANSLATE_RU    
 
 def button(update, context):
     query = update.callback_query
@@ -113,7 +114,8 @@ def button(update, context):
        query.message.reply_text('Please enter the coin: ')  
        return COIN        
     if query.data == '5':
-       getGmail(query,context)
+       query.message.reply_text('Please enter the text to be translated: ')
+       return TRANSLATE_RU       
 
 # Handle time input
 def handle_time(update: Update, context):
@@ -146,6 +148,17 @@ def handle_coin(update: Update, context):
     except Exception as e:
         update.message.reply_text(f'Error: {e}')
 
+def handle_translate_ru(update: Update, context):
+    try:
+        text = update.message.text
+        text_translated = translate_es_ru(text)
+
+        update.message.reply_text(f'Text translated into Russian: \n{text_translated}')
+    except Exception as e:
+        update.message.reply_text(f'Error: {e}')
+    
+    return ConversationHandler.END
+
 # Cancel handler
 def cancel(update: Update, context):
     update.message.reply_text('Operation cancelled.')
@@ -161,11 +174,12 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(button),CommandHandler('alert', alertHandler),CommandHandler('coin', priceCOIN)],
+        entry_points=[CallbackQueryHandler(button),CommandHandler('alert', alertHandler),CommandHandler('coin', priceCOIN),CommandHandler('translate', translateIntoRussian)],
         states={
             TIME: [MessageHandler(Filters.text & ~Filters.command, handle_time)],
             STRING: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
-            COIN:[MessageHandler(Filters.text & ~Filters.command, handle_coin)]
+            COIN:[MessageHandler(Filters.text & ~Filters.command, handle_coin)],
+            TRANSLATE_RU: [MessageHandler(Filters.text & ~Filters.command, handle_translate_ru)] 
         },
         fallbacks=[CommandHandler('cancel', cancel)]                
     )
@@ -174,7 +188,6 @@ def main():
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler('btc', priceBTC))
     dp.add_handler(CommandHandler('eth', priceETH))
-    dp.add_handler(CommandHandler('gmail', getGmail))
 
     dp.add_handler(conv_handler)
 

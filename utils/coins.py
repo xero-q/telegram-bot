@@ -2,6 +2,13 @@ import requests
 import os
 
 def get_coin_usd(coin):
+    """
+    Returns the price in USD of a fiven currency
+
+    Args
+        coin (str): The currency for which you want the price in USD
+    """
+    
     URL = f"https://rest.coinapi.io/v1/exchangerate/{coin}/USD"
     HEADERS = {
                 'Accept': 'text/plain',
