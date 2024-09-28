@@ -109,7 +109,6 @@ def button(update, context):
         priceBTC(query, context)       
     if query.data == '3':
         priceETH(query, context)        
-    # Handle the button press
     if query.data == '4':    
        query.message.reply_text('Please enter the coin: ')  
        return COIN        
@@ -148,6 +147,7 @@ def handle_coin(update: Update, context):
     except Exception as e:
         update.message.reply_text(f'Error: {e}')
 
+# Handle input of text for translation
 def handle_translate_ru(update: Update, context):
     try:
         text = update.message.text
