@@ -59,7 +59,7 @@ def start(update, context):
             [InlineKeyboardButton("Get price of BTC", callback_data='2')],
             [InlineKeyboardButton("Get price of ETH", callback_data='3')],
             [InlineKeyboardButton("Get price of any coin", callback_data='4')],
-            [InlineKeyboardButton("Translate into Russian", callback_data='5')]                  
+            [InlineKeyboardButton("Translate Spanish into Russian", callback_data='5')]                  
         ]
     
         # Create the inline keyboard
