@@ -1,9 +1,9 @@
 import requests
 import os
 
-def get_coin_usd(coin):
+def get_coin_usd(coin: str) -> float:
     """
-    Returns the price in USD of a fiven currency
+    Returns the price in USD of a given currency
 
     Args
         coin (str): The currency for which you want the price in USD

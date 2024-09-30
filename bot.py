@@ -7,18 +7,11 @@ from datetime import datetime
 import threading
 from dotenv import load_dotenv
 import os
-import base64
 from flask import Flask
 
 load_dotenv()
 
-TIME, STRING, COIN, TRANSLATE_RU = range(4)
-
-token_base64 = os.getenv('GCP_TOKEN_BASE64')
-if token_base64:
-    token_json = base64.b64decode(token_base64).decode('utf-8')
-    with open(os.getenv('TOKEN_FILE'), 'w') as token_file:
-        token_file.write(token_json)
+TIME, MESSAGE, COIN, TRANSLATE_RU = range(4)
 
 app = Flask(__name__)
 
@@ -68,11 +61,11 @@ def start(update, context):
         # Send the message with the inline keyboard
         update.message.reply_text('Choose an option:', reply_markup=reply_markup)
 
-def alertHandler(update, context):
+def alert_handler(update, context):
     update.message.reply_text('Please enter the time (HH:MM:SS):')
     return TIME  # Move to the next state to capture time input
 
-def priceBTC(update, context):    
+def price_BTC(update, context):    
     try:
         value_BTC = get_coin_usd('BTC')
         value_currency = '${:,.2f}'.format(value_BTC)
@@ -80,7 +73,7 @@ def priceBTC(update, context):
     except Exception as e:
         update.message.reply_text(f'Error: {e}')    
 
-def priceETH(update, context):
+def price_ETH(update, context):
     try:
         value_ETH = get_coin_usd('ETH')
         value_currency = '${:,.2f}'.format(value_ETH)
@@ -88,11 +81,11 @@ def priceETH(update, context):
     except Exception as e:
         update.message.reply_text(f'Error: {e}')
 
-def priceCOIN(update, context):
+def price_coin(update, context):
     update.message.reply_text('Please enter the coin: ') 
     return COIN
 
-def translateIntoRussian(update, context):
+def translate_into_russian(update, context):
     update.message.reply_text('Please enter the text to be translated: ') 
     return TRANSLATE_RU    
 
@@ -101,26 +94,27 @@ def button(update, context):
     query.answer()
 
     # Handle the button press
-    if query.data == '1':
-        query.message.reply_text('Please enter the time (HH:MM:SS):')
-        return TIME  # Move to the next state to capture time input
-        # alertHandler(query, context)
-    if query.data == '2':
-        priceBTC(query, context)       
-    if query.data == '3':
-        priceETH(query, context)        
-    if query.data == '4':    
-       query.message.reply_text('Please enter the coin: ')  
-       return COIN        
-    if query.data == '5':
-       query.message.reply_text('Please enter the text to be translated: ')
-       return TRANSLATE_RU       
+    match query.data:
+        case '1':
+            query.message.reply_text('Please enter the time (HH:MM:SS):')
+            return TIME  # Move to the next state to capture time input
+        case '2':       
+            price_BTC(query, context)     
+        case '3':
+            price_ETH(query, context)        
+        case '4':
+            query.message.reply_text('Please enter the coin: ')  
+            return COIN   
+        case '5':
+            query.message.reply_text('Please enter the text to be translated: ')
+            return TRANSLATE_RU     
+         
 
 # Handle time input
 def handle_time(update: Update, context):
     context.user_data['time'] = update.message.text
     update.message.reply_text('Now enter the message:')
-    return STRING  # Move to the next state to capture string input
+    return MESSAGE  # Move to the next state to capture string input
 
 # Handle string input
 def handle_string(update: Update, context):
@@ -174,10 +168,10 @@ def main():
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(button),CommandHandler('alert', alertHandler),CommandHandler('coin', priceCOIN),CommandHandler('translate', translateIntoRussian)],
+        entry_points=[CallbackQueryHandler(button),CommandHandler('alert', alert_handler),CommandHandler('coin', price_coin),CommandHandler('translate', translate_into_russian)],
         states={
             TIME: [MessageHandler(Filters.text & ~Filters.command, handle_time)],
-            STRING: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
+            MESSAGE: [MessageHandler(Filters.text & ~Filters.command, handle_string)],
             COIN:[MessageHandler(Filters.text & ~Filters.command, handle_coin)],
             TRANSLATE_RU: [MessageHandler(Filters.text & ~Filters.command, handle_translate_ru)] 
         },
@@ -186,8 +180,8 @@ def main():
 
     # Define handlers
     dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler('btc', priceBTC))
-    dp.add_handler(CommandHandler('eth', priceETH))
+    dp.add_handler(CommandHandler('btc', price_BTC))
+    dp.add_handler(CommandHandler('eth', price_ETH))
 
     dp.add_handler(conv_handler)
 

@@ -9,10 +9,13 @@ def translate_es_ru(text:str) -> str:
         text (str): The text to be translated
     """
 
-    translator = GoogleTranslator(source='es', target='ru')
+    try:
+        translator = GoogleTranslator(source='es', target='ru')
 
-    # Translate from English to Spanish
-    translated = translator.translate(text)
+        # Translate from Spanish into Russian
+        translated = translator.translate(text)
 
-    return translated
+        return translated
+    except:
+        raise Exception('Impossible to translate the desired text')
 

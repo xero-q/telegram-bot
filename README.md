@@ -1,7 +1,7 @@
 ### Telegram Bot
 
 #### Description
-Coded in Python using `telegram` package. For now the bot has five options: `Set Alert`, `Get price of BTC`, `Get price of ETH`, `Get price of any coin` and `Translate Spanish into Russian`
+Coded in Python using `telegram` module. For now the bot has five options: `Set Alert`, `Get price of BTC`, `Get price of ETH`, `Get price of any coin` and `Translate Spanish into Russian`
 
 #### Install
 - Run `pip install -r requirements.txt`
