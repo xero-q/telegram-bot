@@ -44,7 +44,7 @@ def set_alert(user_time, user_string, update):
 def start(update, context):
     # Define the inline buttons
     user_id = update.message.from_user.id
-    if user_id != int(os.getenv('USER_ID')):
+    if user_id != int(os.getenv('USER_ID') or '0'):
        update.message.reply_text('Sorry this bot is private') 
     else:
         keyboard = [
@@ -164,7 +164,7 @@ def main():
     flask_thread.start()
     
     # Set up the Updater and Dispatcher
-    updater = Updater(os.getenv('BOT_ID'), use_context=True)
+    updater = Updater(os.getenv('BOT_ID',''), use_context=True)
     dp = updater.dispatcher
 
     conv_handler = ConversationHandler(
