@@ -4,4 +4,5 @@ btc - Get price of BTC
 eth - Get price of ETH
 coin - Get price of any coin
 translate - Translate Spanish into Russian
+askai - Ask question to AI (Google Gemma)
 cancel - Cancel current operation
