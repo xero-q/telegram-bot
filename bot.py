@@ -1,9 +1,8 @@
 from utils.coins import get_coin_usd
-from utils.translate import translate_es_ru
+from utils.translate import translate_text
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ConversationHandler, MessageHandler, filters, ContextTypes
 from utils.chatai import LangChainModel
-import time
 from datetime import datetime
 import threading
 from dotenv import load_dotenv
@@ -13,7 +12,10 @@ import asyncio
 
 load_dotenv()
 
-TIME, MESSAGE, COIN, TRANSLATE_RU, ASKAI = range(5)
+TIME, MESSAGE, COIN, TRANSLATE, TRANSLATE_LANGUAGES, ASKAI = range(6)
+
+text_translate = ''
+source_target_languages = ''
 
 app = Flask(__name__)
 
@@ -51,7 +53,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("Get price of ETH", callback_data='3')],
             [InlineKeyboardButton("Get price of any coin", callback_data='4')],
             [InlineKeyboardButton(
-                "Translate Spanish into Russian", callback_data='5')],
+                "Translate Text", callback_data='5')],
             [InlineKeyboardButton(
                 "Ask question to AI (Google Gemma)", callback_data='6')]
         ]
@@ -88,9 +90,9 @@ async def price_coin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return COIN
 
 
-async def translate_into_russian(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def translate_text_opt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Please enter the text to be translated: ')
-    return TRANSLATE_RU
+    return TRANSLATE
 
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -110,7 +112,7 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return COIN
         case '5':
             await query.message.reply_text('Please enter the text to be translated: ')
-            return TRANSLATE_RU
+            return TRANSLATE
         case '6':
             await query.message.reply_text('Please enter the prompt: ')
             return ASKAI
@@ -143,12 +145,30 @@ async def handle_coin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f'Error: {e}')
 
 
-async def handle_translate_ru(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_translate_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        text = update.message.text
-        text_translated = translate_es_ru(text)
+        global text_translate
+        text_translate = update.message.text
 
-        await update.message.reply_text(f'Text translated into Russian: \n{text_translated}')
+        await update.message.reply_text(f'Enter the source and target languages (e.g., es-ru):')
+        return TRANSLATE_LANGUAGES
+    except Exception as e:
+        await update.message.reply_text(f'Error: {e}')
+        return ConversationHandler.END
+
+
+async def handle_translate_languages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        source_target_languages = update.message.text
+
+        languages_splitted = source_target_languages.split('-')
+        source_language = languages_splitted[0]
+        target_language = languages_splitted[1]
+
+        translated_text = translate_text(
+            text_translate, source_language, target_language)
+
+        await update.message.reply_text(f'Text translated: \n{translated_text}')
     except Exception as e:
         await update.message.reply_text(f'Error: {e}')
 
@@ -181,13 +201,15 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(button), CommandHandler('alert', alert_handler), CommandHandler(
-            'coin', price_coin), CommandHandler('translate', translate_into_russian)],
+            'coin', price_coin), CommandHandler('translate', translate_text_opt)],
         states={
             TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_time)],
             MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_string)],
             COIN: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_coin)],
-            TRANSLATE_RU: [MessageHandler(
-                filters.TEXT & ~filters.COMMAND, handle_translate_ru)],
+            TRANSLATE: [MessageHandler(
+                filters.TEXT & ~filters.COMMAND, handle_translate_text)],
+            TRANSLATE_LANGUAGES: [MessageHandler(
+                filters.TEXT & ~filters.COMMAND, handle_translate_languages)],
             ASKAI: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND, handle_ask_ai)]
         },

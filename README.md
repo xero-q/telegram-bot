@@ -2,7 +2,7 @@
 
 #### Description
 
-Coded in Python using `telegram` module. For now the bot has six options: `Set Alert`, `Get price of BTC`, `Get price of ETH`, `Get price of any coin`, `Translate Spanish into Russian` and `Ask question to AI (Google Gemma)`
+Coded in Python using `telegram` module. For now the bot has six options: `Set Alert`, `Get price of BTC`, `Get price of ETH`, `Get price of any coin`, `Translate Text` and `Ask question to AI (Google Gemma)`
 
 #### Run containerized
 

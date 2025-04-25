@@ -3,6 +3,6 @@ alert - Set Alert
 btc - Get price of BTC
 eth - Get price of ETH
 coin - Get price of any coin
-translate - Translate Spanish into Russian
+translate - Translate Text
 askai - Ask question to AI (Google Gemma)
 cancel - Cancel current operation
