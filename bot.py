@@ -15,7 +15,6 @@ load_dotenv()
 TIME, MESSAGE, COIN, TRANSLATE, TRANSLATE_LANGUAGES, ASKAI = range(6)
 
 text_translate = ''
-source_target_languages = ''
 
 app = Flask(__name__)
 
@@ -150,7 +149,7 @@ async def handle_translate_text(update: Update, context: ContextTypes.DEFAULT_TY
         global text_translate
         text_translate = update.message.text
 
-        await update.message.reply_text(f'Enter the source and target languages (e.g., es-ru):')
+        await update.message.reply_text(f'Enter the target language (e.g: en):')
         return TRANSLATE_LANGUAGES
     except Exception as e:
         await update.message.reply_text(f'Error: {e}')
@@ -159,14 +158,13 @@ async def handle_translate_text(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def handle_translate_languages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        source_target_languages = update.message.text
+        target_language = update.message.text
 
-        languages_splitted = source_target_languages.split('-')
-        source_language = languages_splitted[0]
-        target_language = languages_splitted[1]
+        if len(target_language) != 2:
+            raise Exception("Invalid source and target languages format")
 
         translated_text = translate_text(
-            text_translate, source_language, target_language)
+            text_translate, "auto", target_language)
 
         await update.message.reply_text(f'Text translated: \n{translated_text}')
     except Exception as e:
