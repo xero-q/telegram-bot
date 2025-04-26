@@ -12,7 +12,7 @@ import asyncio
 
 load_dotenv()
 
-TIME, MESSAGE, COIN, TRANSLATE, TRANSLATE_LANGUAGES, ASKAI = range(6)
+TIME, MESSAGE, COIN, TRANSLATE, TRANSLATE_LANGUAGE, ASKAI = range(6)
 
 text_translate = ''
 
@@ -50,11 +50,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("Set Alert", callback_data='1')],
             [InlineKeyboardButton("Get price of BTC", callback_data='2')],
             [InlineKeyboardButton("Get price of ETH", callback_data='3')],
-            [InlineKeyboardButton("Get price of any coin", callback_data='4')],
+            [InlineKeyboardButton(
+                "Get price of any currency", callback_data='4')],
             [InlineKeyboardButton(
                 "Translate Text", callback_data='5')],
             [InlineKeyboardButton(
-                "Ask question to AI (Google Gemma)", callback_data='6')]
+                "Ask question to AI", callback_data='6')]
         ]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -87,6 +88,11 @@ async def price_ETH(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def price_coin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text('Please enter the coin: ')
     return COIN
+
+
+async def askai(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Please enter the prompt: ')
+    return ASKAI
 
 
 async def translate_text_opt(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -150,13 +156,13 @@ async def handle_translate_text(update: Update, context: ContextTypes.DEFAULT_TY
         text_translate = update.message.text
 
         await update.message.reply_text(f'Enter the target language (e.g: en):')
-        return TRANSLATE_LANGUAGES
+        return TRANSLATE_LANGUAGE
     except Exception as e:
         await update.message.reply_text(f'Error: {e}')
         return ConversationHandler.END
 
 
-async def handle_translate_languages(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_translate_language(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         target_language = update.message.text
 
@@ -179,7 +185,7 @@ async def handle_ask_ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
         langchain_model = LangChainModel()
         response = langchain_model.get_response(user_prompt)
 
-        await update.message.reply_text(f'AI response: \n{response}')
+        await update.message.reply_text(f'AI response: \n{response}', parse_mode='Markdown')
     except Exception as e:
         await update.message.reply_text(f'Error: {e}')
 
@@ -199,15 +205,15 @@ def main():
 
     conv_handler = ConversationHandler(
         entry_points=[CallbackQueryHandler(button), CommandHandler('alert', alert_handler), CommandHandler(
-            'coin', price_coin), CommandHandler('translate', translate_text_opt)],
+            'coin', price_coin), CommandHandler('askai', askai), CommandHandler('translate', translate_text_opt)],
         states={
             TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_time)],
             MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_string)],
             COIN: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_coin)],
             TRANSLATE: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND, handle_translate_text)],
-            TRANSLATE_LANGUAGES: [MessageHandler(
-                filters.TEXT & ~filters.COMMAND, handle_translate_languages)],
+            TRANSLATE_LANGUAGE: [MessageHandler(
+                filters.TEXT & ~filters.COMMAND, handle_translate_language)],
             ASKAI: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND, handle_ask_ai)]
         },

@@ -19,13 +19,21 @@ class LangChainModel:
 
     def _init_model(self):
         try:
-            model = "gemma2-9b-it"
-            provider = "groq"
+            model = os.getenv("MODEL_IDENTIFIER")
+            provider = os.getenv("MODEL_PROVIDER")
+            api_key = os.getenv("MODEL_API_KEY")
+
+            if not model or not provider:
+                raise Exception(
+                    "Model identifier or provider not set in environment variables.")
+            if not api_key:
+                raise Exception(
+                    "Model API key not set in environment variables.")
 
             self._chat_model = init_chat_model(
                 model,
                 model_provider=provider,
-                api_key=os.getenv("GROQ_API_KEY"),
+                api_key=api_key,
                 temperature=0.7,
             )
 

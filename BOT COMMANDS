@@ -2,7 +2,7 @@ start - Display the bot options
 alert - Set Alert
 btc - Get price of BTC
 eth - Get price of ETH
-coin - Get price of any coin
+coin - Get price of any currency
 translate - Translate Text
-askai - Ask question to AI (Google Gemma)
+askai - Ask question to AI
 cancel - Cancel current operation
