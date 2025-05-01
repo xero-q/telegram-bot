@@ -14,8 +14,6 @@ load_dotenv()
 
 TIME, MESSAGE, COIN, TRANSLATE, TRANSLATE_LANGUAGE, ASKAI = range(6)
 
-text_translate = ''
-
 app = Flask(__name__)
 
 
@@ -152,8 +150,7 @@ async def handle_coin(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_translate_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
-        global text_translate
-        text_translate = update.message.text
+        context.user_data['text_translate'] = update.message.text
 
         await update.message.reply_text(f'Enter the target language (e.g: en):')
         return TRANSLATE_LANGUAGE
@@ -169,6 +166,7 @@ async def handle_translate_language(update: Update, context: ContextTypes.DEFAUL
         if len(target_language) != 2:
             raise Exception("Invalid source and target languages format")
 
+        text_translate = context.user_data.get('text_translate')
         translated_text = translate_text(
             text_translate, "auto", target_language)
 
