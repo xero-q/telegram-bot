@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 import os
 from flask import Flask
 import asyncio
+import logging
+
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -71,6 +74,7 @@ async def price_BTC(update: Update, context: ContextTypes.DEFAULT_TYPE):
         value_currency = '${:,.2f}'.format(value_BTC)
         await update.message.reply_text(f'Price of BTC: {value_currency}')
     except Exception as e:
+        logger.exception("Failed to get the price of BTC")
         await update.message.reply_text(f'Error: {e}')
 
 
@@ -80,6 +84,7 @@ async def price_ETH(update: Update, context: ContextTypes.DEFAULT_TYPE):
         value_currency = '${:,.2f}'.format(value_ETH)
         await update.message.reply_text(f'Price of ETH: {value_currency}')
     except Exception as e:
+        logger.exception("Failed to get the price of ETH")
         await update.message.reply_text(f'Error: {e}')
 
 
@@ -145,6 +150,7 @@ async def handle_coin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f'Price of {coin}: {value_currency}')
         return ConversationHandler.END
     except Exception as e:
+        logger.exception(f"Failed to get the price of {coin.upper()}")
         await update.message.reply_text(f'Error: {e}')
 
 
@@ -172,6 +178,7 @@ async def handle_translate_language(update: Update, context: ContextTypes.DEFAUL
 
         await update.message.reply_text(f'Text translated: \n{translated_text}')
     except Exception as e:
+        logger.exception(f"Failed to translate text")
         await update.message.reply_text(f'Error: {e}')
 
     return ConversationHandler.END
@@ -185,6 +192,7 @@ async def handle_ask_ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(f'AI response: \n{response}', parse_mode='Markdown')
     except Exception as e:
+        logger.exception(f"Failed to get AI response")
         await update.message.reply_text(f'Error: {e}')
 
     return ConversationHandler.END
@@ -202,8 +210,8 @@ def main():
     application = Application.builder().token(os.getenv('BOT_ID', '')).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CallbackQueryHandler(button), CommandHandler('alert', alert_handler), CommandHandler(
-            'coin', price_coin), CommandHandler('askai', askai), CommandHandler('translate', translate_text_opt)],
+        entry_points=[CommandHandler('alert', alert_handler), CommandHandler(
+            'coin', price_coin), CommandHandler('askai', askai), CommandHandler('translate', translate_text_opt), CallbackQueryHandler(button)],
         states={
             TIME: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_time)],
             MESSAGE: [MessageHandler(filters.TEXT & ~filters.COMMAND, handle_string)],
